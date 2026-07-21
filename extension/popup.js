@@ -10,11 +10,14 @@ const normUrl = u => {
   } catch { return (u || '').trim().toLowerCase(); }
 };
 
-$('opts').onclick = e => { e.preventDefault(); chrome.runtime.openOptionsPage(); };
-$('manage').onclick = e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL('manage.html') }); };
+$('opts').onclick = e => { e.preventDefault(); webext.runtime.openOptionsPage(); };
+$('manage').onclick = e => {
+  e.preventDefault();
+  webext.tabs.create({ url: webext.runtime.getURL('manage.html') });
+};
 
 // prefill from current tab
-chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+webext.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
   if (tab) { $('url').value = tab.url || ''; $('title').value = tab.title || ''; }
 });
 
@@ -43,7 +46,7 @@ $('save').onclick = async () => {
     $('note').value = '';
   } catch (e) {
     status(e.message, 'err');
-    if (/Settings/.test(e.message)) chrome.runtime.openOptionsPage();
+    if (/Settings/.test(e.message)) webext.runtime.openOptionsPage();
   } finally {
     $('save').disabled = false;
   }
